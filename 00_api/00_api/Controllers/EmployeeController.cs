@@ -12,22 +12,23 @@ namespace _00_api.Controllers
     {
         // Here make the 
         [HttpGet]
-        public IEnumerable<Employee> Get()
+        public IHttpActionResult Get()
         {
-            using(EmployeeDBEntities db = new EmployeeDBEntities())
+            using (EmployeeDBEntities db = new EmployeeDBEntities())
             {
-                return db.Employees.ToList();
+                var data= db.Employees.ToList();
+                return Json(data);
             }
         }
 
         // http get id
         [HttpGet]
-        public Employee Get(int id)
+        public IHttpActionResult Get(int id)
         {
-            using(EmployeeDBEntities db = new EmployeeDBEntities())
+            using (EmployeeDBEntities db = new EmployeeDBEntities())
             {
                 var rid = db.Employees.FirstOrDefault(s => s.Id == id);
-                    return rid;
+                return Json(rid);
             }
         }
 
@@ -40,22 +41,23 @@ namespace _00_api.Controllers
             try
             {
 
-            using (EmployeeDBEntities db = new EmployeeDBEntities())
-            {
-                db.Employees.Add(employee);
-                db.SaveChanges();
+                using (EmployeeDBEntities db = new EmployeeDBEntities())
+                {
+                    db.Employees.Add(employee);
+                    db.SaveChanges();
 
                     var message = Request.CreateResponse(HttpStatusCode.Created); ;
                     message.Headers.Location = new Uri(Request.RequestUri + employee.Id.ToString());
                     return message;
+                }
             }
-            }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.BadRequest.ToString());
             }
         }
 
+        /*
         [HttpPut]
         public void Put(int id, [FromBody] Employee employee)
         {
@@ -73,6 +75,49 @@ namespace _00_api.Controllers
             
         }
 
+        */
+
+        // Again modifed this method
+        public HttpResponseMessage Put(int id, Employee employee)
+        {
+            try
+            {
+
+                using (EmployeeDBEntities ent = new EmployeeDBEntities())
+                {
+                    var putID = ent.Employees.FirstOrDefault(p => p.Id == id);
+                    if (ent == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee id " + id.ToString() + "not found");
+                    }
+                    else
+                    {
+
+                        putID.Id = employee.Id;
+                        putID.Name = employee.Name;
+                        putID.Age = employee.Age;
+                        putID.Gender = employee.Gender;
+                        putID.Salary = employee.Salary;
+
+                        ent.SaveChanges();
+
+                        return Request.CreateResponse(HttpStatusCode.OK, ent);
+
+                    }
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+
+
+        }
+
+
+
+
 
         // for delete
         [HttpDelete]
@@ -84,17 +129,20 @@ namespace _00_api.Controllers
                 db.SaveChanges();
 
 
-                if(db!=null)
+                if (db != null)
                 {
                     return Request.CreateResponse(HttpStatusCode.OK.ToString());
                 }
                 else
                 {
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee Id is Not " +id.ToString()+ "Found");
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee Id is Not " + id.ToString() + "Found");
                 }
 
             }
         }
     }
 
+    public interface IHttpActionResult<T>
+    {
+    }
 }
