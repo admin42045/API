@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-3.4.1.js"></script>
+    <script type="text/javascript">
+        // when document is ready
+        $(document).ready(function () {
+
+            // select the ullist id and put intothe variables
+            var ulEmployees = $("#ulEmployees");
+
+            $("#btn").click(function () {
+
+                // all the ajax jquery method
+                $.ajax({
+                    type: 'GET',
+                    url: 'api/Employee/',
+                    dataType: 'json',
+                    success: function (data) {
+                        // define a emplty type method
+                        ulEmployees.empty();
+                        $.each(data, function (index, val) {
+                            var emp = val.Name + ' ' + val.Age + ' ' + val.Gender + ' ' + val.Salary;
+                            ulEmployees.append("<li> " + emp + "</li>");
+                        });
+                    }
+                });
+
+            });
+            $("#btnClear").click(function () {
+                // here fetch the all employee data variabel again clear empty method
+                ulEmployees.empty();
+            });
+        });
+
+
+
+    </script>
+</head>
+<body>
+
+    <div>
+
+        <input type="button" id="btn" value="All Employees" />
+        <input type="button" id="btnClear" value="Clear" />
+
+        <div>
+            <ul id="ulEmployees">
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>
